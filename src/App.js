@@ -1,17 +1,44 @@
 import React, { Component } from "react";
-import logo from "./logo.svg";
 import "./App.css";
 
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = { token: null };
+    this.state = {
+      token: null,
+      tokenValidity: "unknown"
+    };
   }
 
   render() {
     // Backend engineer doing css, go easy on me...
     const appStyle = { marginTop: "0px", paddingTop: "0px" };
     const headerStyle = { marginTop: "0px", paddingTop: "0px", textAlign: "left" };
+
+    const getTokenClick = () => {
+      fetch("/api/jwt-generator/v1/generate-token").then(reply => {
+        // Parse the json response
+        reply.json().then(result => {
+          this.setState({
+            token: result.token,
+            tokenValidity: "unknown"
+          });
+        });
+      });
+    };
+
+    const testToken = () => {
+      fetch("/api/jwt-generator/v1/verify-token", {
+        method: "POST",
+        body: JSON.stringify({ token: this.state.token })
+      }).then(reply => {
+        reply.json().then(result => {
+          console.log(result);
+          this.setState({ tokenValidity: result.tokenValidity });
+        });
+      });
+    };
+
     return (
       <div style={appStyle}>
         <header style={headerStyle}>
@@ -19,9 +46,11 @@ class App extends Component {
         </header>
         <div>
           <p>Your token is: {this.state.token}</p>
+          <p>Your token validity is: {this.state.tokenValidity}</p>
         </div>
         <br />
-        <button>Get a new token!</button>
+        <button onClick={getTokenClick}>Get a new token!</button>
+        <button onClick={testToken}>Test your token</button>
       </div>
     );
   }

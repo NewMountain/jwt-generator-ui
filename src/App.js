@@ -16,7 +16,9 @@ class App extends Component {
     const headerStyle = { marginTop: "0px", paddingTop: "0px", textAlign: "left" };
 
     const getTokenClick = () => {
-      fetch("/api/jwt-generator/v1/generate-token").then(reply => {
+      fetch("/api/jwt-generator/v1/generate-token", {
+        headers: { user: "rando" }
+      }).then(reply => {
         // Parse the json response
         reply.json().then(result => {
           this.setState({
@@ -29,11 +31,11 @@ class App extends Component {
 
     const testToken = () => {
       fetch("/api/jwt-generator/v1/verify-token", {
-        method: "POST",
-        body: JSON.stringify({ token: this.state.token })
+        method: "post",
+        body: JSON.stringify({ token: this.state.token, user: "rando" }),
+        headers: { "Content-Type": "application/json" }
       }).then(reply => {
         reply.json().then(result => {
-          console.log(result);
           this.setState({ tokenValidity: result.tokenValidity });
         });
       });
